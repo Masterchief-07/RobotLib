@@ -1,3 +1,3 @@
-from ...RMatrix import RMatrix
+from RobotLib import RMatrix
 
 a = RMatrix();
