@@ -7,8 +7,8 @@ T_0_1 = RMatrix.D(theta_1, 0, l_1, 0);
 T_1_2 = RMatrix.D(theta_2, 0, l_2, 0);
 T_0_2 = T_0_1 * T_1_2
 equations = T_0_2[:2,3]
-a = Eq(equations[0],x)
-b = Eq(equations[1],y)
+a = Eq(equations[0]-x,0)
+b = Eq(equations[1]-y,0)
 pprint(T_0_1)
 pprint(T_1_2)
 pprint(T_0_2)
@@ -17,4 +17,4 @@ pprint(a)
 pprint(b)
 #pprint(solveset(Eq(a,x), theta_1))
 #pprint(linsolve([a,b], theta_1, theta_2))
-#pprint(nonlinsolve([a,b], theta_1, theta_2))
+pprint(nonlinsolve([a,b], theta_1, theta_2))

@@ -9,7 +9,7 @@ class RMatrix:
 
     def get(self, x, y):
         assert(x<4 and x>=0 and y<4 and y>=0)
-        return self.matrix[x,y];
+        return self.matrix[x,y]
 
     def print(self):
         pprint(self.matrix)
