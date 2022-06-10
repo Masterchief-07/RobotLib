@@ -1,5 +1,5 @@
 from RMatrix import RMatrix
-from RobotLib import RobotLib
+from RobotLib import RobotLib, CCD
 import sympy as sp
 import numpy as np
 
@@ -13,3 +13,5 @@ rb.add(alpha=0, r=2, d=0)
 
 pos = rb.fk([0.0,0.0,0.0,0.0,0.0])
 print(pos)
+algo = CCD();
+rb.ik(np.array([[2],[2],[0]]), algo);
