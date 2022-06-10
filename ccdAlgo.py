@@ -30,10 +30,12 @@ f_e = lambdify((theta_1, theta_2, l_1, l_2),T_0_2[:2,3],modules="numpy")
 def computccd(v_t:np.ndarray, v_e:np.ndarray, v_i:np.ndarray):
     v_t_i = v_t - v_i
     v_e_i = v_e - v_i
-    print(v_t_i)
+    #print(f"v_t_i = {v_t_i.shape} \n v_e_i = {v_e_i.shape}")
     a = v_t_i/(np.sqrt(np.sum(np.square(v_t_i))))
     b = v_e_i/(np.sqrt(np.sum(np.square(v_e_i))))
-    return a.T.dot(b);
+    r = a.T.dot(b)[0].item();
+    angle = np.arccos(r)
+    return angle;
 
 #simulation
 v_t = np.array([[2.0],[2.0]]).astype(np.float32)
@@ -42,14 +44,16 @@ l1, l2 = 2, 2
 
 error = 1.0
 while(error>0.5):
+#for i in range(5):
     #forward kinematics
     v_1 = f_1(theta0, l1)
     v_e = f_e(theta0, theta1, l1, l2)
     #ccd algo
-    theta1 += computccd(v_t, v_e, v_1);
+    theta1 = computccd(v_t, v_e, v_1)
     v_e = f_e(theta0, theta1, l1, l2)
-    theta0 += computccd(v_t, v_e, v_0);
+    theta0 = computccd(v_t, v_e, v_0)
 
     v_e = f_e(theta0, theta1, l1, l2)
+    print(f"v_e = {v_e}, theta_1 = {theta1}, theta_0 = {theta0}")
     error = np.sum(np.square(v_t - v_e))
     print(f"error: {error}")
