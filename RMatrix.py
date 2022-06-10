@@ -14,6 +14,9 @@ class RMatrix:
     def print(self):
         pprint(self.matrix)
 
+    def add_T(theta=symbols("theta"), alpha=symbols("alpha"), r=symbols("r"), d=symbols("d")):
+        pass
+
     @staticmethod
     def D(theta=symbols("theta"), alpha=symbols("alpha"), r=symbols("r"), d=symbols("d")):
         """
