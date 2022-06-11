@@ -41,7 +41,7 @@ def computccd(v_t:np.ndarray, v_e:np.ndarray, v_i:np.ndarray):
 
 #simulation
 v_t = np.array([[2.0],[2.0]]).astype(np.float32)
-theta0, theta1 = 1.0, 1.0
+theta0, theta1 = 1.0, 0.0
 l1, l2 = 2, 2
 
 error = 1.0
