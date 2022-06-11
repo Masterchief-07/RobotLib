@@ -56,9 +56,8 @@ class RobotLib:
         """
             inverse kinematics using a algo
         """
-        algo.ik(self.angles, self.parts_f, target); 
-        pass
-
+        self.angles = algo.ik(self.angles, self.parts_f, target); 
+        return self.angles
 
 
 class CCD(object):
@@ -127,6 +126,7 @@ class CCD(object):
             iteration+=1
             #print(f"------------------------------{iteration}------------------------------")
         print(f"n{iteration}\n error:{error}\n v_e:{pos[-1]}\n angles:{self.angles}\n")
+        return self.angles
                     
 
 
