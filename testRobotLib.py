@@ -17,3 +17,4 @@ pos = rb.fk([0.0,0.0,0.0,0.0,0.0])
 #print(pos)
 ccd = CCD();
 rb.ik(np.array([[2],[5],[0]]), ccd);
+rb.ik(np.array([[10],[10],[0]]),ccd);
