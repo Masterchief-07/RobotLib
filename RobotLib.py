@@ -9,7 +9,7 @@ class RobotLib:
 
     def __init__(self):
         self.parts = [];
-        self.parts_f = [];  #parts function
+        self.parts_f = []; #parts function
         self.parts_p = [];  #parts parameters
         self.angles = [];   #angles
         self.pos = [];      #pos of every articulations
@@ -23,22 +23,17 @@ class RobotLib:
         params = [];
         if(theta==None):
             theta = symbols("theta_{}".format(n))
-            params.append(theta)
+            self.parts_p.append(theta)
         if(alpha==None):
             alpha = symbols("alpha_{}".format(n))
-            params.append(alpha)
         if(r==None):
             r = symbols("r_{}".format(n))
-            params.append(r)
         if(d==None):
             d = symbols("d_{}".format(n))
-            params.append(d)
         T = RMatrix.D(theta, alpha, r, d);
-        f = lambdify(params, T[:3,3], modules="numpy")
-        self.parts_p.append(tuple(params))
-        self.parts_f.append(f)
-        self.parts.append(T);
         self.T_0_N = T if self.T_0_N ==None else self.T_0_N*T;
+        self.parts.append(self.T_0_N)
+        self.parts_f.append(lambdify(self.parts_p, self.T_0_N[:3,3], modules="numpy"))
         #sp.pprint(T)
 
     def fk(self,angles:list):
@@ -47,7 +42,7 @@ class RobotLib:
         """
         assert(len(self.parts) == len(angles))
         self.angles = angles;
-        pos = (self.parts_f[i](angles[i]) for i in range(len(self.parts_f)))
+        pos = (self.parts_f[i](*angles[:i+1]) for i in range(len(self.parts_f)))
         pos = tuple(accumulate(pos))
         self.pos = pos;
         return pos;
@@ -91,9 +86,9 @@ class CCD(object):
         """
         assert(start_at >= 0 and start_at < len(functs) and len(angles) == len(functs))
         if(start_at == 0 or self.pos==None):
-            self.pos=tuple(accumulate(functs[i](angles[i])for i in range(len(functs))))
+            self.pos=tuple(accumulate(functs[i](angles[:i])for i in range(len(functs))))
             return self.pos
-        pos = tuple(accumulate((functs[i](angles[i])for i in range(start_at, len(functs))), initial=self.pos[start_at-1]))[1:]
+        pos = tuple(accumulate((functs[i](angles[:i])for i in range(start_at, len(functs))), initial=self.pos[start_at-1]))[1:]
         return pos
 
     def cerror(self, v_t:ndarray, v_e:ndarray):
@@ -124,6 +119,8 @@ class CCD(object):
                 error = self.cerror(v_t, pos[-1])
                 #print(f"error = {error}")
             iteration+=1
+            if(iteration>1000):
+                break
             #print(f"------------------------------{iteration}------------------------------")
         print(f"n{iteration}\n error:{error}\n v_e:{pos[-1]}\n angles:{self.angles}\n")
         return self.angles
