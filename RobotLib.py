@@ -34,6 +34,7 @@ class RobotLib:
         self.T_0_N = T if self.T_0_N ==None else self.T_0_N*T;
         self.parts.append(self.T_0_N)
         self.parts_f.append(lambdify(self.parts_p, self.T_0_N[:3,3], modules="numpy"))
+        self.angles.append(0.0);
         #sp.pprint(T)
 
     def fk(self,angles:list):
@@ -42,8 +43,7 @@ class RobotLib:
         """
         assert(len(self.parts) == len(angles))
         self.angles = angles;
-        pos = (self.parts_f[i](*angles[:i+1]) for i in range(len(self.parts_f)))
-        pos = tuple(accumulate(pos))
+        pos = tuple(self.parts_f[i](*angles[:i+1]) for i in range(len(self.parts_f)))
         self.pos = pos;
         return pos;
     
@@ -84,13 +84,11 @@ class CCD(object):
             forward kinematics at any angles
             to speed the calculation of the endefactor after each angle update
         """
-        assert(start_at >= 0 and start_at < len(functs) and len(angles) == len(functs))
-        if(start_at == 0 or self.pos==None):
-            self.pos=tuple(accumulate(functs[i](angles[:i])for i in range(len(functs))))
-            return self.pos
-        pos = tuple(accumulate((functs[i](angles[:i])for i in range(start_at, len(functs))), initial=self.pos[start_at-1]))[1:]
-        return pos
+        pos = tuple(functs[i](*angles[:i+1]) for i in range(len(functs)))
+        self.pos = pos;
+        return pos;
 
+         
     def cerror(self, v_t:ndarray, v_e:ndarray):
         """
             comput the error betwean the endefactor and the target
@@ -109,17 +107,18 @@ class CCD(object):
         while error>self.err_threshold:
             for i in reversed(range(len(angles))):
                 #print("------------------------------")
-                pos = self.fk(self.angles, functs, i-1 if i-1>=0 else 0);
+                pos = self.fk(self.angles, functs)
                 #print(f"{i} : {pos}")
                 #print(f"v_e: {pos[-1]}")
-                theta = self.comput(v_t, pos[-1], pos[0]) if i>0 else self.comput(v_t, pos[-1], np.array([[0],[0],[0]]))
+                print(f"pos[i-1]: {pos[i-1]}")
+                theta = self.comput(v_t, pos[-1], pos[i-1]) if i>0 else self.comput(v_t, pos[-1], np.array([[0],[0],[0]]))
                 #print(f"thetat: {theta}")
-                self.angles[i] += theta
-                #print(f"angles: {self.angles}")
+                self.angles[i] = theta
+                print(f"angles: {self.angles}")
                 error = self.cerror(v_t, pos[-1])
-                #print(f"error = {error}")
+                print(f"error = {error}")
             iteration+=1
-            if(iteration>1000):
+            if(iteration>0):
                 break
             #print(f"------------------------------{iteration}------------------------------")
         print(f"n{iteration}\n error:{error}\n v_e:{pos[-1]}\n angles:{self.angles}\n")
